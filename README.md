@@ -22,15 +22,6 @@ Both versions use a **JSON file** to store anime data, making it easy to extend,
 
 ---
 
-## Screenshots
-
-**Desktop GUI Version:**
-![Desktop GUI Screenshot](screenshots/desktop_gui.png)
-
-**Web GUI Version:**
-![Web GUI Screenshot](screenshots/web_gui.png)
-
----
 
 ## Installation
 
