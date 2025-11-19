@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Anime Finder</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='/static/css/style.css') }}">
+</head>
+<body>
+<header><h1>Anime Finder</h1></header>
+
+<main>
+<section class="controls">
+  <input type="text" id="search-input" placeholder="Search anime...">
+  <button onclick="searchAnime()">Search</button>
+  <button onclick="getRandomAnime()">Random</button>
+  <select id="genre-select">
+    <option value="">Filter by genre</option>
+    <option value="Action">Action</option>
+    <option value="Adventure">Adventure</option> 
+    <option value="Fantasy">Fantasy</option> 
+    <option value="Mystery">Mystery</option> 
+    <option value="Thriller">Thriller</option>
+     <option value="Supernatural">Supernatural</option>
+      <option value="Drama">Drama</option>
+       <option value="Horror">Horror</option> 
+       <option value="Romance">Romance</option> 
+       <option value="Sci-Fi">Sci-Fi</option> 
+    <option value="Comedy">Comedy</option>
+
+  </select>
+  <button onclick="filterByGenre()">Filter</button>
+</section>
+
+<section id="anime-container" class="anime-container"></section>
+</main>
+
+<script>
+async function searchAnime() {
+    const name = document.getElementById('search-input').value;
+    const res = await fetch('/search', { method: 'POST', body: new URLSearchParams({name}) });
+    const data = await res.json();
+    displayAnime(data);
+}
+
+async function getRandomAnime() {
+    const res = await fetch('/random');
+    const data = await res.json();
+    displayAnime(data);
+}
+
+async function filterByGenre() {
+    const genre = document.getElementById('genre-select').value;
+    const res = await fetch('/filter_genre', { method: 'POST', body: new URLSearchParams({genre}) });
+    const data = await res.json();
+    displayAnime(data);
+}
+
+function displayAnime(animes) {
+    const container = document.getElementById('anime-container');
+    container.innerHTML = '';
+    if (!animes || animes.length === 0) {
+        container.innerHTML = '<p>No anime found.</p>';
+        return;
+    }
+    animes.forEach(anime => {
+        const card = document.createElement('div');
+        card.classList.add('anime-card');
+        card.innerHTML = `
+            <img src="/static/covers/${anime.img}" alt="${anime.name}">
+            <div class="anime-info">
+                <h2>${anime.name} (${anime.year})</h2>
+                <p><strong>Score:</strong> ${anime.score}</p>
+                <p><strong>Status:</strong> ${anime.status}</p>
+                <p><strong>Number of episodes:</strong> ${anime.episodes}</p>
+                <p><strong>Number of seasons:</strong> ${anime.seasons}</p>
+                <p><strong>Genres:</strong> ${anime.genres.join(', ')}</p>
+                <p class="synopsis">${anime.synopsis}</p>
+            </div>
+        `;
+        container.appendChild(card);
+    });
+}
+
+
+</script>
+</body>
+</html>
