@@ -1,9 +1,14 @@
 import json
 import random
 
+import os
 
-url = 'C:/Users/pc/OneDrive/Documentos/projet java/anime finder/anime_data.json'
-with open(url, "r") as file:
+# Get the folder where the script is running
+BASE_DIR = os.path.dirname(__file__)  # current folder of the script
+json_path = os.path.join(BASE_DIR, "anime_data.json")
+
+# Load JSON
+with open(json_path, "r", encoding="utf-8") as file:
     data = json.load(file)
 
 
