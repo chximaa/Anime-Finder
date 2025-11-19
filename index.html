@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Anime Finder</title>
+<style>/* styles.css */
+body {
+font-family: Arial, sans-serif;
+background: linear-gradient(100deg, #ffafcc, #ffc8dd, #bde0fe);
+margin: 0;
+padding: 0;
+}
+
+header {
+margin-top: 40px;
+margin-bottom: 20px;
+color: white;
+text-align: center;
+padding: 20px 0;
+}
+
+h1 {
+margin: 0;
+font-size: 2em;
+}
+
+main {
+padding: 20px;
+max-width: 1200px;
+margin: 0 auto;
+}
+
+.controls {
+display: flex;
+flex-wrap: wrap;
+gap: 10px;
+margin-bottom: 20px;
+justify-content: center;
+}
+
+.controls input, .controls select, .controls button {
+padding: 8px 12px;
+font-size: 1em;
+border-radius: 20px;
+border: none;
+}
+
+button {
+cursor: pointer;
+background-color: rgb(123, 23, 123);
+color: white;
+border: none;
+border-radius: 5px;
+}
+
+button:hover {
+background-color: #0a5383;
+}
+
+.anime-container {
+display: flex;
+flex-direction: column;
+gap: 20px;
+}
+
+.anime-card {
+display: flex;              /* side by side */
+background-color: white;
+border-radius: 10px;
+padding: 15px;
+box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+transition: transform 0.2s;
+gap: 20px;                  /* space between image and text */
+}
+
+.anime-card:hover {
+transform: scale(1.05);
+}
+
+.anime-card img {
+width: 200px;               /* fixed width for image */
+height: auto;
+border-radius: 10px;
+flex-shrink: 0;             /* don't shrink the image */
+}
+
+.anime-info {
+display: flex;
+flex-direction: column;     /* stack text vertically */
+justify-content: flex-start;
+}
+
+.anime-card h2 {
+font-size: 1.2em;
+margin: 0 0 10px 0;
+}
+
+.anime-card p {
+margin: 5px 0;
+font-size: 0.9em;
+}
+
+.synopsis {
+font-style: italic;
+color: #555;
+}
+</style>
+</head>
+<body>
+<header><h1>Anime Finder</h1></header>
+
+<main>
+<section class="controls">
+  <input type="text" id="search-input" placeholder="Search anime...">
+  <button onclick="searchAnime()">Search</button>
+  <button onclick="getRandomAnime()">Random</button>
+  <select id="genre-select">
+    <option value="">Filter by genre</option>
+    <option value="Action">Action</option>
+    <option value="Adventure">Adventure</option> 
+    <option value="Fantasy">Fantasy</option> 
+    <option value="Mystery">Mystery</option> 
+    <option value="Thriller">Thriller</option>
+     <option value="Supernatural">Supernatural</option>
+      <option value="Drama">Drama</option>
+       <option value="Horror">Horror</option> 
+       <option value="Romance">Romance</option> 
+       <option value="Sci-Fi">Sci-Fi</option> 
+    <option value="Comedy">Comedy</option>
+
+  </select>
+  <button onclick="filterByGenre()">Filter</button>
+</section>
+
+<section id="anime-container" class="anime-container"></section>
+</main>
+
+<script>
+
+
+const animeData = [
+  {"name":"Death Note","episodes":37,"seasons":1,"score":8.8,"genres":["Mystery","Thriller","Supernatural"],"synopsis":"Light Yagami, a brilliant but bored high-school student, discovers a supernatural notebook that allows him to kill anyone simply by writing their name. As he begins a crusade to rid the world of criminals, a genius detective known only as L launches a mind-bending psychological battle to stop him.","img":"death_note.jpeg","status":"Completed","year":2006},
+  {"name":"Monster","episodes":74,"seasons":1,"score":9.0,"genres":["Psychological","Thriller","Mystery"],"synopsis":"Dr. Kenzo Tenma, a renowned neurosurgeon, saves the life of a young boy instead of an influential politician. This decision destroys his career—and years later he learns the boy has grown into a dangerous serial killer. Filled with guilt, Tenma sets out across Europe to stop the monster he saved.","img":"monster.jpeg","status":"Completed","year":2004},
+  {"name":"Demon Slayer","episodes":26,"seasons":1,"score":8.9,"genres":["Action","Adventure","Fantasy"],"synopsis":"After demons massacre his family, Tanjiro Kamado becomes a demon slayer to avenge them and save his sister Nezuko, who has been turned into a demon. Along the way, he faces deadly enemies, discovers secret breathing techniques, and uncovers the truth behind the demon king Muzan.","img":"demon_slayer.jpeg","status":"Ongoing","year":2019},
+  {"name":"Jujutsu Kaisen","episodes":24,"seasons":1,"score":8.7,"genres":["Action","Supernatural","Adventure"],"synopsis":"Yuji Itadori swallows a cursed object containing the spirit of Sukuna, the King of Curses. To prevent chaos, he joins Jujutsu High, where sorcerers battle powerful curses born from human fear and hatred. Yuji must train, survive, and confront the dark world he has fallen into.","img":"jjk.jpeg","status":"Ongoing","year":2020},
+  {"name":"Chainsaw Man","episodes":12,"seasons":1,"score":8.5,"genres":["Action","Horror","Supernatural"],"synopsis":"Denji, a poor boy betrayed by the yakuza, fuses with his loyal devil-dog Pochita and gains the terrifying ability to transform parts of his body into chainsaws. Recruited by Public Safety, he hunts devils while chasing dreams, facing brutal enemies, and uncovering dark secrets about humanity.","img":"chainsaw_man.jpeg","status":"Ongoing","year":2022},
+  {"name":"Bleach","episodes":366,"seasons":16,"score":7.8,"genres":["Action","Adventure","Supernatural"],"synopsis":"Ichigo Kurosaki accidentally obtains the powers of a Soul Reaper from Rukia Kuchiki. As he battles Hollows—malevolent spirits—he becomes entangled in ancient Soul Society politics, hidden conspiracies, and powerful enemies that threaten both the human world and the spirit realm.","img":"bleach.jpeg","status":"Completed","year":2004},
+  {"name":"Akame ga Kill","episodes":24,"seasons":1,"score":7.5,"genres":["Action","Fantasy","Adventure"],"synopsis":"Tatsumi joins Night Raid, a group of assassins fighting a corrupt empire. As he learns the harsh reality of war, he faces deadly enemies, tragic losses, and powerful weapons known as Teigu, all while questioning what justice truly means.","img":"akame_ga_kill.jpeg","status":"Completed","year":2014},
+  {"name":"Darling in the Franxx","episodes":24,"seasons":1,"score":7.3,"genres":["Action","Romance","Sci-Fi"],"synopsis":"In a dystopian future, children are raised solely to pilot giant mechs called Franxx to protect humanity. Hiro, a former prodigy, meets Zero Two—a mysterious girl known for killing her partners—and forms a powerful yet dangerous bond that challenges everything they know.","img":"darling_in_the_franxx.jpeg","status":"Completed","year":2018},
+  {"name":"Tokyo Ghoul","episodes":24,"seasons":2,"score":7.9,"genres":["Action","Horror","Supernatural"],"synopsis":"After a deadly encounter, Kaneki becomes a half-ghoul forced to eat human flesh to survive. He struggles with his identity while navigating the violent world of ghouls, the cruelty of humans, and the psychological torment of losing his humanity.","img":"tokyo_ghoul.jpeg","status":"Completed","year":2014},
+  {"name":"One Piece","episodes":1060,"seasons":20,"score":8.7,"genres":["Action","Adventure","Comedy"],"synopsis":"Monkey D. Luffy sets out on a grand adventure to find the legendary treasure ‘One Piece’ and become the Pirate King. Along the way, he builds a loyal crew, fights powerful enemies, uncovers global conspiracies, and explores the vast, mysterious seas of the Grand Line.","img":"one_piece.jpeg","status":"Ongoing","year":1999},
+  {"name":"Attack on Titan","episodes":75,"seasons":4,"score":9.0,"genres":["Action","Drama","Fantasy"],"synopsis":"Humanity hides behind massive walls to survive against Titans—giant humanoid creatures that devour people. When the wall is breached, Eren Yeager vows revenge and joins the military. As mysteries unfold, he discovers shocking truths about Titans, freedom, and the world.","img":"attack_on_titan.jpeg","status":"Completed","year":2013},
+  {"name":"Death Parade","episodes":12,"seasons":1,"score":8.2,"genres":["Drama","Psychological","Supernatural"],"synopsis":"When people die, they are sent to bars run by arbiters who judge their souls through intense, revealing games. In one such bar, Decim, a calm arbiter, meets a mysterious woman who begins to challenge the rules of judgment itself.","img":"death_parade.jpeg","status":"Completed","year":2015},
+  {"name":"Yona of the Dawn","episodes":24,"seasons":1,"score":8.0,"genres":["Action","Adventure","Romance"],"synopsis":"Princess Yona lives a peaceful life until a shocking coup forces her to flee her kingdom. With her loyal guard Hak, she embarks on a journey to find the legendary Four Dragon Warriors and reclaim her rightful throne.","img":"yona_of_the_dawn.jpeg","status":"Completed","year":2014},
+  {"name":"A Sign of Affection","episodes":12,"seasons":1,"score":7.6,"genres":["Romance","Drama","Slice of Life"],"synopsis":"Yuki, a deaf college student, lives a quiet life until she meets Itsuomi, a multilingual traveler who shows genuine interest in understanding her world. Their gentle romance explores communication, vulnerability, and accepting differences.","img":"a_sign_of_affection.jpeg","status":"Ongoing","year":2024},
+  {"name":"Solo Leveling","episodes":12,"seasons":1,"score":8.8,"genres":["Action","Fantasy","Adventure"],"synopsis":"In a world where hunters battle monsters from hidden gates, Sung Jin-Woo is known as the weakest hunter alive. After surviving a deadly dungeon, he gains a mysterious ability to level up infinitely, turning him into the most powerful hunter in history.","img":"solo_leveling.jpeg","status":"Ongoing","year":2024},
+  {"name":"Death Mount Death Play","episodes":12,"seasons":1,"score":7.2,"genres":["Action","Adventure","Mystery"],"synopsis":"A powerful necromancer known as the Corpse God reincarnates into modern Tokyo after losing a battle in his original world. Trying to live peacefully, he becomes entangled with criminals, odd characters, and dark mysteries that threaten both worlds.","img":"death_mount_death_play.jpeg","status":"Ongoing","year":2024},
+  {"name":"Bungo Stray Dogs","episodes":61,"seasons":5,"score":8.2,"genres":["Action","Mystery","Supernatural"],"synopsis":"Atsushi Nakajima joins the Armed Detective Agency, a group of individuals with supernatural abilities who solve dangerous cases and confront criminal organizations like the Port Mafia. Each character is inspired by real literary authors, and the story blends noir mystery with supernatural action.","img":"bungo_stray_dogs.jpeg","status":"Ongoing","year":2016},
+  {"name":"The Fragrant Flower Blooms With Dignity","episodes":12,"seasons":1,"score":7.8,"genres":["Romance","Slice of Life","Drama"],"synopsis":"A quiet boy named Rintaro gets involved with Kaoruko, a seemingly perfect girl from a prestigious family. As their unexpected bond forms, they navigate school life, secrets behind appearances, and the slow blossoming of a heartfelt romance.","img":"the_fragrant_flower.jpeg","status":"Ongoing","year":2024},
+  {"name":"Lord of Mysteries","episodes":12,"seasons":1,"score":8.4,"genres":["Fantasy","Mystery","Supernatural"],"synopsis":"Set in a Victorian-inspired world, Klein Moretti becomes involved in secret organizations, ancient rituals, and eldritch powers after awakening mysterious abilities. The series blends magic, steampunk aesthetics, and cosmic horror as Klein navigates a world full of hidden dangers.","img":"lord_of_mysteries.jpeg","status":"Ongoing","year":2024},
+  {"name":"Dr. Stone","episodes":35,"seasons":3,"score":8.2,"genres":["Adventure","Sci-Fi","Shounen"],"synopsis":"After humanity turns to stone for thousands of years, genius scientist Senku awakens in a world overgrown by nature. Using science, he works to rebuild civilization from scratch while facing tribes, enemies, and mysteries behind the petrification event.","img":"dr_stone.jpeg","status":"Completed","year":2019},
+  {"name":"Neon Genesis Evangelion","episodes":26,"seasons":1,"score":8.5,"genres":["Psychological","Mecha","Drama"],"synopsis":"Shinji Ikari is forced to pilot a biomechanical Evangelion unit to fight monstrous beings called Angels. As battles intensify, the story delves into trauma, identity, and existential dread, becoming one of the most influential psychological anime of all time.","img":"evangelion.jpeg","status":"Completed","year":1995},
+  {"name":"The Promised Neverland","episodes":23,"seasons":2,"score":8.1,"genres":["Psychological","Thriller","Drama"],"synopsis":"Emma, Ray, and Norman discover that their orphanage hides a terrifying secret: the children are being raised as food for demons. Together, they plan a daring escape, facing mind games, betrayals, and the frightening world outside.","img":"promised_neverland.jpeg","status":"Completed","year":2019},
+  {"name":"Hell's Paradise","episodes":13,"seasons":1,"score":8.0,"genres":["Action","Fantasy","Supernatural"],"synopsis":"Gabimaru, a deadly ninja sentenced to execution, is offered freedom if he retrieves the Elixir of Life from a mysterious island filled with monsters and immortal beings. As executioners and criminals journey together, survival becomes a brutal test of strength and morality.","img":"hells_paradise.jpeg","status":"Ongoing","year":2023},
+  {"name":"The Eminence in Shadow","episodes":30,"seasons":2,"score":8.2,"genres":["Action","Comedy","Isekai"],"synopsis":"A boy obsessed with operating from the shadows dies and reincarnates in a fantasy world, where his exaggerated delusions about an evil cult accidentally turn out to be true. As Shadow, he unknowingly becomes the real leader of a powerful organization.","img":"eminence_in_shadow.jpeg","status":"Ongoing","year":2022},
+  {"name":"Vinland Saga","episodes":48,"seasons":2,"score":9.0,"genres":["Action","Historical","Drama"],"synopsis":"Thorfinn, driven by revenge, joins a band of mercenaries after his father’s murder. The story evolves into a deep exploration of war, slavery, peace, and what it truly means to be free in the brutal Viking era.","img":"vinland_saga.jpeg","status":"Ongoing","year":2019},
+  {"name":"The Brilliant Healer: Life in the Underground","episodes":12,"seasons":1,"score":7.3,"genres":["Fantasy","Adventure"],"synopsis":"A talented healer is forced to live underground after being targeted by a corrupt kingdom. As she treats mysterious patients, she uncovers secrets about the world above and her own hidden abilities.","img":"brilliant_healer.jpeg","status":"Ongoing","year":2024},
+  {"name":"Beautiful Bones: Sakurako’s Investigation","episodes":12,"seasons":1,"score":7.4,"genres":["Mystery","Drama"],"synopsis":"Sakurako Kujo, a woman fascinated with bones, works with high schooler Shoutarou to investigate unidentified remains and unravel complex cases. Each episode blends forensic science with emotional storytelling.","img":"beautiful_bones.jpeg","status":"Completed","year":2015},
+  {"name":"Moriarty the Patriot","episodes":24,"seasons":2,"score":8.0,"genres":["Mystery","Thriller","Historical"],"synopsis":"William James Moriarty seeks to overthrow the corrupt British class system by becoming a criminal mastermind. This reimagined Sherlock Holmes universe tells the story from Moriarty’s perspective, mixing genius-level schemes with political revolution.","img":"moriarty.jpeg","status":"Completed","year":2020},
+  {"name":"Blue Spring Ride","episodes":12,"seasons":1,"score":7.6,"genres":["Romance","Drama","Slice of Life"],"synopsis":"Futaba reunites with her first love, Kou, who has drastically changed since middle school. As they reconnect, the story explores youth, emotional healing, and the struggles of growing up.","img":"blue_spring_ride.jpeg","status":"Completed","year":2014},
+  {"name":"Hunter x Hunter","episodes":148,"seasons":6,"score":9.1,"genres":["Action","Adventure","Fantasy"],"synopsis":"Gon Freecss becomes a Hunter to find his missing father. Along the way, he meets Killua, Kurapika, and Leorio. Together they face deadly exams, criminal organizations, nen abilities, and existential threats in a world full of wonder and danger.","img":"hxh.jpeg","status":"Hiatus","year":2011},
+  {"name":"Erased","episodes":12,"seasons":1,"score":8.5,"genres":["Mystery","Thriller","Supernatural"],"synopsis":"Satoru Fujinuma has the ability to travel back in time before tragedies occur. After being framed for murder, he is sent back to his childhood, where he must uncover the truth behind a series of kidnappings to save his classmates and his future.","img":"erased.jpeg","status":"Completed","year":2016},
+  {"name":"Berserk","episodes":25,"seasons":1,"score":8.7,"genres":["Dark Fantasy","Action","Drama"],"synopsis":"Guts, a mercenary with a tragic past, joins the Band of the Hawk led by the charismatic Griffith. Their rise to power leads to betrayal, sacrifice, and a descent into one of anime’s darkest, most brutal stories.","img":"berserk.jpeg","status":"Completed","year":1997}
+];
+
+
+
+// Display function
+function displayAnime(animes) {
+  const container = document.getElementById('anime-container');
+  container.innerHTML = '';
+  if (!animes || animes.length === 0) {
+    container.innerHTML = '<p>No anime found.</p>';
+    return;
+  }
+  animes.forEach(anime => {
+    const card = document.createElement('div');
+    card.classList.add('anime-card');
+    card.innerHTML = `
+      <img src="static/covers/${anime.img}" alt="${anime.name}">
+      <div class="anime-info">
+        <h2>${anime.name} (${anime.year})</h2>
+        <p><strong>Score:</strong> ${anime.score}</p>
+        <p><strong>Status:</strong> ${anime.status}</p>
+        <p><strong>Episodes:</strong> ${anime.episodes}</p>
+        <p><strong>Seasons:</strong> ${anime.seasons}</p>
+        <p><strong>Genres:</strong> ${anime.genres.join(', ')}</p>
+        <p class="synopsis">${anime.synopsis}</p>
+      </div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+// Search anime
+function searchAnime() {
+  const term = document.getElementById('search-input').value.toLowerCase();
+  const filtered = animeData.filter(a => a.name.toLowerCase().includes(term));
+  displayAnime(filtered);
+}
+
+// Filter by genre
+function filterByGenre() {
+  const genre = document.getElementById('genre-select').value;
+  const filtered = animeData.filter(a => a.genres.includes(genre));
+  displayAnime(filtered);
+}
+
+// Random anime
+function getRandomAnime() {
+  const random = animeData[Math.floor(Math.random() * animeData.length)];
+  displayAnime([random]);
+}
+</script>
+
+
+
